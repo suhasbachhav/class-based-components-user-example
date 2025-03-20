@@ -2,50 +2,51 @@ import { Component } from 'react';
 
 import Users from './Users';
 import classes from './UserFinder.module.css';
-
-const DUMMY_USERS = [
-  { id: 'u1', name: 'Max' },
-  { id: 'u2', name: 'Manuel' },
-  { id: 'u3', name: 'Julie' },
-];
+import UsersContext from '../store/users-context';
 
 class UserFinder extends Component {
-  constructor() {
-    super();
-    this.state = {
-      filteredUsers: DUMMY_USERS,
-      searchTerm: '',
-    };
-  }
+    static contextType = UsersContext;
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.searchTerm !== this.state.searchTerm) {
-      this.setState({
-        filteredUsers: DUMMY_USERS.filter((user) =>
-          user.name.includes(this.state.searchTerm)
-        ),
-      });
+    constructor() {
+        super();
+        this.state = {
+            filteredUsers: [],
+            searchTerm: '',
+        };
     }
-  }
 
-  searchChangeHandler(event) {
-    this.setState({ searchTerm: event.target.value });
-  };
+    componentDidMount() {
+        // Initialize filteredUsers with the users from context
+        this.setState({ filteredUsers: this.context.users });
+    }
 
-  render() {
-    return (
-        <>
-            <div className={classes.finder}>
-                <input
-                type="text"
-                onChange={this.searchChangeHandler.bind(this)}
-                value={this.state.searchTerm}
-                />
-            </div>
-            <Users users={this.state.filteredUsers} />
-        </>
-    );
-  }
+    componentDidUpdate(prevProps, prevState) {
+        if (prevState.searchTerm !== this.state.searchTerm) {
+            this.setState({
+                filteredUsers: this.context.users.filter((user) =>
+                    user.name.includes(this.state.searchTerm)
+                ),
+            });
+        }
+    }
+
+    render() {
+        return (
+            <>
+                <div className={classes.finder}>
+                    <input
+                        type="text"
+                        onChange={(event) =>
+                            this.setState({ searchTerm: event.target.value })
+                        }
+                    />
+                </div>
+                <Users users={this.state.filteredUsers} />
+
+            </>
+
+        );
+    }
 }
 
 export default UserFinder;
